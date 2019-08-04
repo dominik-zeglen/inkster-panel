@@ -1,5 +1,5 @@
 import * as React from "react";
-import withStyles from "react-jss";
+import createUseStyles, { css } from "aurora-ui-kit/dist/utils/jss";
 import {
   Box,
   Home,
@@ -10,8 +10,9 @@ import {
   Settings,
 } from "react-feather";
 import * as classNames from "classnames";
+import IconButton from "aurora-ui-kit/dist/components/IconButton";
+import { ITheme } from "aurora-ui-kit/dist/theme";
 
-import IconButton from "./IconButton";
 import Toggle from "./Toggle";
 import i18n from "../i18n";
 
@@ -28,10 +29,11 @@ interface Props {
   onSectionClick: (section: string) => () => void;
 }
 
-const decorate = withStyles(theme => ({
+const useStyles = createUseStyles((theme: ITheme) => ({
   active: {},
   content: {
     flexGrow: 1,
+    padding: `0 ${theme.spacing * 3}px`,
   },
   link: {
     "&$active": {
@@ -49,10 +51,11 @@ const decorate = withStyles(theme => ({
     borderRadius: 5,
     cursor: "pointer" as "pointer",
     display: "flex" as "flex",
+    height: 48,
     marginBottom: theme.spacing,
     overflow: "hidden",
     padding: theme.spacing,
-    transition: theme.transition.time,
+    transition: theme.transition.default,
   },
   menuText: {
     left: 0,
@@ -62,13 +65,17 @@ const decorate = withStyles(theme => ({
     display: "flex" as "flex",
   },
   shrinkMenu: {
+    alignItems: "center",
+    color: theme.colors.gray.lightest,
     display: "flex" as "flex",
+    height: 48,
     justifyContent: "center" as "center",
     marginBottom: theme.spacing,
+    width: 48,
   },
   sideMenu: {
-    background: `linear-gradient(-45deg, ${theme.colors.black.main}, ${
-      theme.colors.black.dark
+    background: `linear-gradient(45deg, ${theme.colors.gray.darkest}, ${
+      theme.colors.common.black
     })`,
     color: theme.colors.gray.lightest,
     display: "flex" as "flex",
@@ -78,7 +85,7 @@ const decorate = withStyles(theme => ({
     width: SIDEBAR_WIDTH,
     maxWidth: SIDEBAR_WIDTH,
     minHeight: "100vh",
-    transition: theme.transition.time,
+    transition: theme.transition.default,
   },
   sideMenuShrunken: {
     "& $link": {
@@ -94,12 +101,23 @@ const decorate = withStyles(theme => ({
     padding: `${theme.spacing * 2}px ${theme.spacing}px`,
     width: SIDEBAR_WIDTH_SHRUNKEN,
   },
+  shrinkMenuIconContainer: css`
+    display: flex;
+    justify-content: center;
+  `,
   spacer: {
     flex: 1,
   },
 }));
-export const AppLayout = decorate<Props>(
-  ({ classes, children, section, onLogout, onSectionClick }) => (
+export const AppLayout: React.FC<Props> = ({
+  children,
+  section,
+  onLogout,
+  onSectionClick,
+}) => {
+  const classes = useStyles();
+
+  return (
     <Toggle initial={true}>
       {(isMenuShrunken, { toggle: shrinkMenu }) => (
         <div className={classes.root}>
@@ -159,16 +177,16 @@ export const AppLayout = decorate<Props>(
                 })}
               </span>
             </div>
-            <IconButton
-              className={classes.shrinkMenu}
-              icon={isMenuShrunken ? Maximize2 : Minimize2}
-              onClick={shrinkMenu}
-            />
+            <div className={classes.shrinkMenuIconContainer}>
+              <IconButton className={classes.shrinkMenu} onClick={shrinkMenu}>
+                {isMenuShrunken ? <Maximize2 /> : <Minimize2 />}
+              </IconButton>
+            </div>
           </div>
           <div className={classes.content}>{children}</div>
         </div>
       )}
     </Toggle>
-  ),
-);
+  );
+};
 export default AppLayout;

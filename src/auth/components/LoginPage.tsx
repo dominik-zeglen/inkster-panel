@@ -1,15 +1,21 @@
 import * as React from "react";
-import withStyles from "react-jss";
-import { Button, Panel } from "react-bootstrap";
+import createUseStyles from "aurora-ui-kit/dist/utils/jss";
 import { AlertTriangle } from "react-feather";
+import Checkbox from "aurora-ui-kit/dist/components/Checkbox";
+import Button from "aurora-ui-kit/dist/components/Button";
+import Card from "aurora-ui-kit/dist/components/Card";
+import CardContent from "aurora-ui-kit/dist/components/CardContent";
+import Typography, {
+  getFontSize,
+} from "aurora-ui-kit/dist/components/Typography";
+import Input from "aurora-ui-kit/dist/components/TextInput";
 
 import PageLayout from "./PageLayout";
-import Checkbox from "../../components/Checkbox";
 import Form from "../../components/Form";
 import Link from "../../components/Link";
-import Input from "../../components/Input";
-import Typography from "../../components/Typography";
 import i18n from "../../i18n";
+import Spacer from "../../components/Spacer";
+import auroraTheme, { ITheme } from "aurora-ui-kit/dist/theme";
 
 export interface FormData {
   email: string;
@@ -29,15 +35,15 @@ const initialForm: FormData = {
   password: "",
   remember: false,
 };
-const decorate = withStyles(theme => ({
+const useStyles = createUseStyles((theme: ITheme) => ({
   buttonContainer: {
     display: "flex" as "flex",
     justifyContent: "flex-end" as "flex-end",
   },
   errorPanel: {
     backgroundColor: theme.colors.error.main,
-    color: theme.colors.white.main,
-    fontSize: theme.typography.caption.fontSize,
+    color: theme.colors.common.white,
+    fontSize: getFontSize("caption"),
     marginBottom: theme.spacing * 4,
   },
   errorPanelContent: {
@@ -59,18 +65,24 @@ const decorate = withStyles(theme => ({
     textAlign: "center" as "center",
   },
 }));
-export const LoginPage = decorate<Props>(
-  ({ classes, disabled, error, passwordRecoveryHref, onSubmit }) => (
+export const LoginPage: React.FC<Props> = ({
+  error,
+  passwordRecoveryHref,
+  onSubmit,
+}) => {
+  const classes = useStyles();
+
+  return (
     <Form initial={initialForm} onSubmit={onSubmit}>
-      {({ change, data, hasChanged }) => (
+      {({ change, data, submit }) => (
         <PageLayout
           header={i18n.t("Log in", {
             context: "header",
           })}
         >
           {error && (
-            <Panel className={classes.errorPanel}>
-              <Panel.Body>
+            <Card className={classes.errorPanel}>
+              <CardContent>
                 <div className={classes.errorPanelContent}>
                   <AlertTriangle />
                   <div>
@@ -82,32 +94,60 @@ export const LoginPage = decorate<Props>(
                     </Link>
                   </div>
                 </div>
-              </Panel.Body>
-            </Panel>
+              </CardContent>
+            </Card>
           )}
           <div>
             <Input
               label={i18n.t("E-mail")}
-              name="email"
-              type="email"
+              InputProps={{
+                componentProps: {
+                  type: "email",
+                },
+              }}
               value={data.email}
-              onChange={change}
+              onChange={value =>
+                change({
+                  target: {
+                    name: "email",
+                    value,
+                  },
+                } as any)
+              }
             />
+            <Spacer />
             <Input
               label={i18n.t("Password")}
-              name="password"
-              type="password"
+              InputProps={{
+                componentProps: {
+                  type: "password",
+                },
+              }}
               value={data.password}
-              onChange={change}
+              onChange={value =>
+                change({
+                  target: {
+                    name: "password",
+                    value,
+                  },
+                } as any)
+              }
             />
+            <Spacer />
             <Checkbox
+              checked={data.remember}
               label={i18n.t("Remember me")}
-              name="remember"
-              value={data.remember}
-              onChange={change}
+              onChange={() =>
+                change({
+                  target: {
+                    name: "remember",
+                    value: !data.remember,
+                  },
+                } as any)
+              }
             />
             <div className={classes.buttonContainer}>
-              <Button bsStyle="primary" type="submit">
+              <Button color="primary" type="submit" onClick={submit}>
                 {i18n.t("Log in", { context: "button" })}
               </Button>
             </div>
@@ -115,7 +155,11 @@ export const LoginPage = decorate<Props>(
               className={classes.forgotPasswordLink}
               href={passwordRecoveryHref}
             >
-              <Typography component="span" variant="anchor">
+              <Typography
+                componentProps={{
+                  style: auroraTheme.typography.anchor,
+                }}
+              >
                 {i18n.t("Reset password", {
                   context: "link",
                 })}
@@ -125,6 +169,6 @@ export const LoginPage = decorate<Props>(
         </PageLayout>
       )}
     </Form>
-  ),
-);
+  );
+};
 export default LoginPage;

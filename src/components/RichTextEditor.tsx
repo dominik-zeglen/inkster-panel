@@ -1,10 +1,9 @@
+import classNames from "classnames";
 import * as React from "react";
-import { ControlLabel, FormGroup, HelpBlock } from "react-bootstrap";
-import withStyles, { WithStyles } from "react-jss";
 import { EditorState, convertFromRaw, convertToRaw, RichUtils } from "draft-js";
-import Editor, { composeDecorators } from "draft-js-plugins-editor";
+import DraftEditor, { composeDecorators } from "draft-js-plugins-editor";
 import createInlineToolbarPlugin, {
-  Separator
+  Separator,
 } from "draft-js-inline-toolbar-plugin";
 import {
   ItalicButton,
@@ -15,14 +14,24 @@ import {
   HeadlineThreeButton,
   UnorderedListButton,
   OrderedListButton,
-  BlockquoteButton
+  BlockquoteButton,
+  AlignBlockDefaultButton,
+  AlignBlockLeftButton,
+  AlignBlockCenterButton,
+  AlignBlockRightButton,
 } from "draft-js-buttons";
 import createImagePlugin from "draft-js-image-plugin";
-import createAlignmentPlugin from "draft-js-alignment-plugin";
 import createFocusPlugin from "draft-js-focus-plugin";
 import createResizeablePlugin from "draft-js-resizeable-plugin";
 import createBlockDndPlugin from "draft-js-drag-n-drop-plugin";
 import createDragNDropUploadPlugin from "@mikeljames/draft-js-drag-n-drop-upload-plugin";
+import InputFocus from "aurora-ui-kit/dist/components/InputFocus";
+import InputLabel from "aurora-ui-kit/dist/components/InputLabel";
+import Typography from "aurora-ui-kit/dist/components/Typography";
+import createUseStyles, { css } from "aurora-ui-kit/dist/utils/jss";
+import { ITheme } from "aurora-ui-kit/dist/theme";
+
+import i18n from "../i18n";
 
 interface Props {
   id?: string;
@@ -43,175 +52,269 @@ const mockUpload = (opts: any) => console.log(opts);
 const focusPlugin = createFocusPlugin();
 const resizeablePlugin = createResizeablePlugin();
 const blockDndPlugin = createBlockDndPlugin();
-const alignmentPlugin = createAlignmentPlugin();
-const { AlignmentTool } = alignmentPlugin;
 
-const decorator = composeDecorators(
-  resizeablePlugin.decorator,
-  alignmentPlugin.decorator,
-  focusPlugin.decorator,
-  blockDndPlugin.decorator
-);
-const imagePlugin = createImagePlugin({ decorator });
-
-const dragNDropFileUploadPlugin = createDragNDropUploadPlugin({
-  handleUpload: mockUpload,
-  addImage: imagePlugin.addImage
-});
-
-const decorate = withStyles((theme: any) => ({
+const useStyles = createUseStyles((theme: ITheme) => ({
+  button: {
+    "&": css`
+      -webkit-appearance: none;
+      align-items: center;
+      background: ${theme.mixins.fade(
+        theme.colors.primary.main,
+        theme.alpha.light,
+      )};
+      border: none;
+      color: ${theme.colors.gray.dark};
+      cursor: pointer;
+      display: flex;
+      height: 32px;
+      justify-content: center;
+      padding: 0;
+      width: 32px;
+    `,
+    ":focus, &:hover": css`
+      background: ${theme.mixins.fade(
+        theme.colors.primary.main,
+        theme.alpha.default,
+      )};
+    `,
+  },
+  buttonActive: {
+    "&$button": css`
+      background: ${theme.mixins.fade(
+        theme.colors.primary.main,
+        theme.alpha.default,
+      )};
+    `,
+  },
   editor: {
-    "&.active": {
-      borderBottomColor: theme.colors.secondary.main,
-      boxShadow: `0 1px ${theme.colors.secondary.main}`
-    },
-    borderBottom: `1px solid ${theme.colors.disabled}`,
+    background: theme.mixins.fade(theme.colors.primary.main, theme.alpha.light),
+    border: `1px solid ${theme.colors.primary.lightest}`,
     marginBottom: theme.spacing,
-    marginTop: theme.spacing,
-    paddingBottom: theme.spacing,
-    transition: theme.transition.time
+    marginTop: 0,
+    padding: theme.spacing,
+    transition: theme.transition.default,
   },
-  headlineButton: {
-    background: "transparent",
-    color: "#888",
-    fontSize: 21,
-    border: 0,
-    verticalAlign: "bottom",
-    position: "relative" as "relative",
-    top: -1,
-    height: 34,
-    width: 36
+  editorContainer: {
+    paddingTop: theme.spacing * 3,
   },
+  headlineButton: css`
+    border: 0;
+    color: ${theme.colors.common.black};
+    font-size: 21px;
+    position: relative;
+    vertical-align: bottom;
+  `,
   headlineButtonWrapper: {
-    display: "inline-block" as "inline-block"
+    display: "inline-block" as "inline-block",
   },
-  toolbar: {
-    display: "flex" as "flex",
-    position: "absolute" as "absolute"
-  }
+  toolbar: css`
+    background: ${theme.colors.background.main};
+    border: 1px solid
+      ${theme.mixins.fade(theme.colors.gray.main, theme.alpha.default)};
+    border-radius: 2px;
+    display: flex;
+    padding: ${theme.spacing}px;
+    position: absolute;
+  `,
 }));
 
-class HeadlinesPicker extends React.Component<any, any> {
-  componentDidMount() {
-    setTimeout(() => {
-      window.addEventListener("click", this.onWindowClick);
-    });
+const AlignmentPicker: React.FC<any> = ({ onOverrideContent, ...props }) => {
+  const classes = useStyles();
+
+  const onWindowClick = () => onOverrideContent(undefined);
+
+  React.useEffect(() => {
+    window.addEventListener("click", onWindowClick);
+
+    return () => window.removeEventListener("click", onWindowClick);
+  });
+
+  const buttons = [
+    AlignBlockDefaultButton,
+    AlignBlockLeftButton,
+    AlignBlockCenterButton,
+    AlignBlockRightButton,
+  ];
+
+  return (
+    <div className={classes.toolbar}>
+      {buttons.map((Button, i) => (
+        <Button key={i} {...props} />
+      ))}
+    </div>
+  );
+};
+const AlignmentButton: React.FC<any> = ({ onOverrideContent }) => {
+  const classes = useStyles();
+
+  return (
+    <div
+      onMouseDown={event => event.preventDefault()}
+      className={classes.headlineButtonWrapper}
+    >
+      <button
+        onClick={() => onOverrideContent(AlignmentPicker)}
+        className={classNames(classes.button, classes.headlineButton)}
+      >
+        A
+      </button>
+    </div>
+  );
+};
+
+const HeadlinesPicker: React.FC<any> = ({ onOverrideContent, ...props }) => {
+  const classes = useStyles();
+
+  const onWindowClick = () => onOverrideContent(undefined);
+
+  React.useEffect(() => {
+    window.addEventListener("click", onWindowClick);
+
+    return () => window.removeEventListener("click", onWindowClick);
+  });
+
+  const buttons = [HeadlineOneButton, HeadlineTwoButton, HeadlineThreeButton];
+
+  return (
+    <div className={classes.toolbar}>
+      {buttons.map((Button, i) => (
+        <Button key={i} {...props} />
+      ))}
+    </div>
+  );
+};
+const HeadlinesButton: React.FC<any> = ({ onOverrideContent }) => {
+  const classes = useStyles();
+
+  return (
+    <div
+      onMouseDown={event => event.preventDefault()}
+      className={classes.headlineButtonWrapper}
+    >
+      <button
+        onClick={() => onOverrideContent(HeadlinesPicker)}
+        className={classNames(classes.button, classes.headlineButton)}
+      >
+        H
+      </button>
+    </div>
+  );
+};
+const Editor: any = DraftEditor;
+
+class RichTextEditorComponent extends React.Component<
+  Props & {
+    classes: Record<
+      | "button"
+      | "buttonActive"
+      | "editor"
+      | "editorContainer"
+      | "toolbar"
+      | "headlineButton"
+      | "headlineButtonWrapper",
+      string
+    >;
+  },
+  State
+> {
+  state = {
+    editorState:
+      this.props.initialValue && this.props.initialValue !== ""
+        ? EditorState.createWithContent(
+            convertFromRaw(JSON.parse(this.props.initialValue)),
+          )
+        : EditorState.createEmpty(),
+    focused: false,
+  };
+
+  editor: any = null;
+  inlineToolbarPlugin = createInlineToolbarPlugin({
+    structure: [
+      BoldButton,
+      ItalicButton,
+      UnderlineButton,
+      Separator,
+      HeadlinesButton,
+      UnorderedListButton,
+      OrderedListButton,
+      BlockquoteButton,
+      AlignmentButton,
+    ],
+    theme: {
+      buttonStyles: {
+        active: this.props.classes.buttonActive,
+        button: this.props.classes.button,
+      },
+      toolbarStyles: {
+        toolbar: this.props.classes.toolbar,
+      },
+    },
+  });
+
+  decorator = composeDecorators(
+    resizeablePlugin.decorator,
+    focusPlugin.decorator,
+    blockDndPlugin.decorator,
+  );
+
+  imagePlugin = createImagePlugin({
+    decorator: this.decorator,
+    theme: {
+      buttonStyles: {
+        active: this.props.classes.buttonActive,
+        button: this.props.classes.button,
+      },
+      toolbarStyles: {
+        toolbar: this.props.classes.toolbar,
+      },
+    },
+  });
+
+  handleKeyCommand(command: any, editorState: any) {
+    const newState = RichUtils.handleKeyCommand(editorState, command);
+    if (newState) {
+      this.onChange(newState);
+      return "handled";
+    }
+    return "not-handled";
   }
 
-  componentWillUnmount() {
-    window.removeEventListener("click", this.onWindowClick);
-  }
+  onBlur = () => this.setState({ focused: false });
 
-  onWindowClick = () => this.props.onOverrideContent(undefined);
+  onChange = (editorState: any) => {
+    const value = JSON.stringify(convertToRaw(editorState.getCurrentContent()));
+    const event = {
+      target: { name: this.props.name, value },
+    };
+    this.props.onChange(event as any);
+    this.setState({ editorState });
+  };
+
+  onFocus = () => this.setState({ focused: true });
 
   render() {
-    const buttons = [HeadlineOneButton, HeadlineTwoButton, HeadlineThreeButton];
-    return (
-      <div>
-        {buttons.map((Button, i) => <Button key={i} {...this.props} />)}
-      </div>
-    );
-  }
-}
-
-const HeadlinesButton = decorate(
-  class HeadlinesButtonComponent extends React.Component<any, any> {
-    onMouseDown = (event: any) => event.preventDefault();
-
-    onClick = () => this.props.onOverrideContent(HeadlinesPicker);
-
-    render() {
-      return (
-        <div
-          onMouseDown={this.onMouseDown}
-          className={this.props.classes.headlineButtonWrapper}
-        >
-          <button
-            onClick={this.onClick}
-            className={this.props.classes.headlineButton}
-          >
-            H
-          </button>
-        </div>
-      );
-    }
-  }
-);
-export const RichTextEditor = decorate<Props>(
-  class RichTextEditorComponent extends React.Component<
-    Props &
-      WithStyles<
-        "editor" | "toolbar" | "headlineButton" | "headlineButtonWrapper"
-      >,
-    State
-  > {
-    state = {
-      editorState:
-        this.props.initialValue && this.props.initialValue !== ""
-          ? EditorState.createWithContent(
-              convertFromRaw(JSON.parse(this.props.initialValue))
-            )
-          : EditorState.createEmpty(),
-      focused: false
-    };
-
-    editor: any = null;
-    inlineToolbarPlugin = createInlineToolbarPlugin({
-      structure: [
-        BoldButton,
-        ItalicButton,
-        UnderlineButton,
-        Separator,
-        HeadlinesButton,
-        UnorderedListButton,
-        OrderedListButton,
-        BlockquoteButton
-      ]
+    const { classes, label, helperText } = this.props;
+    const { InlineToolbar } = this.inlineToolbarPlugin;
+    const dragNDropFileUploadPlugin = createDragNDropUploadPlugin({
+      handleUpload: mockUpload,
+      addImage: this.imagePlugin.addImage,
     });
-
-    handleKeyCommand(command: any, editorState: any) {
-      const newState = RichUtils.handleKeyCommand(editorState, command);
-      if (newState) {
-        this.onChange(newState);
-        return "handled";
-      }
-      return "not-handled";
-    }
-
-    onBlur = () => this.setState({ focused: false });
-
-    onChange = (editorState: any) => {
-      const value = JSON.stringify(
-        convertToRaw(editorState.getCurrentContent())
-      );
-      const event = {
-        target: { name: this.props.name, value }
-      };
-      this.props.onChange(event as any);
-      this.setState({ editorState });
-    };
-
-    onFocus = () => this.setState({ focused: true });
-
-    render() {
-      const { classes, id, error, label, helperText } = this.props;
-      const { InlineToolbar } = this.inlineToolbarPlugin;
-      const plugins = [
-        this.inlineToolbarPlugin,
-        dragNDropFileUploadPlugin,
-        blockDndPlugin,
-        focusPlugin,
-        alignmentPlugin,
-        resizeablePlugin,
-        imagePlugin
-      ];
-      return (
-        <FormGroup controlId={id} validationState={error ? "error" : null}>
-          {label && <ControlLabel>{label}</ControlLabel>}
+    const plugins = [
+      this.inlineToolbarPlugin,
+      dragNDropFileUploadPlugin,
+      blockDndPlugin,
+      focusPlugin,
+      resizeablePlugin,
+      this.imagePlugin,
+    ];
+    return (
+      <div className={classes.editorContainer}>
+        {label && <InputLabel label={label}>{null}</InputLabel>}
+        <InputFocus focused={this.state.focused}>
           <div
             className={[
               classes.editor,
-              this.state.focused ? "active" : undefined
+              this.state.focused ? "active" : undefined,
             ].join(" ")}
           >
             <Editor
@@ -221,17 +324,20 @@ export const RichTextEditor = decorate<Props>(
               onBlur={this.onBlur}
               onChange={this.onChange}
               onFocus={this.onFocus}
-              ref={(element: any) => {
-                this.editor = element;
-              }}
             />
-            <InlineToolbar className={{ toolbarStyles: classes.toolbar }} />
-            <AlignmentTool />
+            <InlineToolbar />
           </div>
-          {helperText && <HelpBlock>{helperText}</HelpBlock>}
-        </FormGroup>
-      );
-    }
+        </InputFocus>
+        <Typography variant="caption">
+          {helperText || i18n.t("Select text to enable text formatting tools")}
+        </Typography>
+      </div>
+    );
   }
-);
+}
+
+export const RichTextEditor: React.FC<Props> = props => {
+  const classes = useStyles();
+  return <RichTextEditorComponent {...props} classes={classes} />;
+};
 export default RichTextEditor;

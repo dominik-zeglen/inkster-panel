@@ -1,25 +1,26 @@
 import * as ColorFunc from "color";
-import { Breakpoint, Color, Theme, Typography } from "react-jss";
-
-const breakpoints = {
-  xs: 576,
-  sm: 768,
-  md: 992,
-  lg: 1280,
-};
+import baseAuroraTheme from "aurora-ui-kit/dist/theme";
+import { IColor } from "aurora-ui-kit/dist/theme/palette";
 
 function makeColor(
   main: string,
   dark?: string,
   light?: string,
   lightest?: string,
-): Color {
+): IColor {
   return {
     main,
     dark:
       dark ||
       ColorFunc(main)
         .darken(0.2)
+        .rgb()
+        .string(),
+    darkest:
+      dark ||
+      ColorFunc(main)
+        .darken(0.2)
+        .blacken(0.85)
         .rgb()
         .string(),
     light:
@@ -51,79 +52,25 @@ const palette = {
 };
 const colors = {
   primary: palette.blue,
-  secondary: palette.green,
+  secondary: palette.purple,
   success: palette.green,
   error: palette.red,
   disabled: palette.lightGray.dark,
-  ...palette,
 };
-const baseTypography: Typography = {
-  color: colors.black.main,
-  lineHeight: "1.42857143",
-  fontSize: "1rem",
-  fontFamily: '"Open Sans", sans-serif',
-  fontWeight: 400,
-};
-export const theme: Theme = {
-  colors,
-  spacing: 10,
-  breakpoints: {
-    down: (bp: Breakpoint) => {
-      return `@media (max-width: ${breakpoints[bp] - 0.02}px)`;
-    },
-    up: (bp: Breakpoint) => {
-      return `@media (min-width: ${breakpoints[bp]}px)`;
-    },
-    width: (bp: Breakpoint) => breakpoints[bp],
-  },
-  typography: {
-    anchor: {
-      ...baseTypography,
-      color: colors.primary.main,
-      display: "inline-block" as "inline-block",
-      fontSize: "0.8rem",
-      transitionDuration: "500ms",
-      "&:hover, &:focus": {
-        color: colors.secondary.dark,
-      },
-      "&:after": {
-        background: colors.primary.main,
-        content: "''",
-        display: "block" as "block",
-        height: 1,
-        maxWidth: 20,
-        width: "100%",
-        transitionDuration: "500ms",
-      },
-      "&:hover:after, &:focus:after": {
-        background: colors.secondary.dark,
-        maxWidth: 40,
-      },
-    },
-    body: {
-      ...baseTypography,
-    },
-    mainHeading: {
-      ...baseTypography,
-      fontSize: "1.953rem",
-    },
-    subHeading: {
-      ...baseTypography,
-      fontSize: "1.563rem",
-    },
-    button: {
-      ...baseTypography,
-      fontSize: "0.8rem",
-      fontWeight: 600 as 600,
-      textTransform: "uppercase" as "uppercase",
-    },
-    caption: {
-      ...baseTypography,
-      fontSize: "0.8rem",
+
+export const theme: typeof baseAuroraTheme = {
+  ...baseAuroraTheme,
+  colors: {
+    ...baseAuroraTheme.colors,
+    ...colors,
+    background: {
+      ...baseAuroraTheme.colors.background,
+      default: ColorFunc(colors.primary.main)
+        .alpha(0.02)
+        .rgb()
+        .string(),
     },
   },
-  transition: {
-    time: "500ms",
-  },
 };
+
 export default theme;

@@ -1,48 +1,44 @@
 import * as React from "react";
 import { Plus } from "react-feather";
-import withStyles from "react-jss";
+import IconButton from "aurora-ui-kit/dist/components/IconButton";
 
 import { ListViewProps } from "../../";
 import i18n from "../../i18n";
 import Container from "../../components/Container";
 import PageHeader from "../../components/PageHeader";
-import IconButton from "../../components/IconButton";
 import DirectoryRootList from "./DirectoryRootList";
 import { RootDirectories_getRootDirectories_edges_node } from "../queries/types/RootDirectories";
+import createUseStyles from "aurora-ui-kit/dist/utils/jss";
+import { ITheme } from "aurora-ui-kit/dist/theme";
 
-interface Props extends ListViewProps<{ name: string }> {
+interface Props extends ListViewProps {
   directories: RootDirectories_getRootDirectories_edges_node[];
 }
 
-const decorate = withStyles(
-  (theme: any) => ({
-    root: {
-      display: "grid" as "grid",
-      gridColumnGap: theme.spacing,
-      gridTemplateColumns: "2fr 1fr",
-    },
-  }),
-  { displayName: "DirectoryRootPage" },
-);
-export const DirectoryRootPage = decorate<Props>(
-  ({
-    classes,
-    directories,
-    disabled,
-    loading,
-    pageInfo,
-    onAdd,
-    onNextPage,
-    onPreviousPage,
-    onRowClick,
-  }) => (
+const useStyles = createUseStyles((theme: ITheme) => ({
+  root: {
+    display: "grid" as "grid",
+    gridColumnGap: theme.spacing,
+    gridTemplateColumns: "2fr 1fr",
+  },
+}));
+export const DirectoryRootPage: React.FC<Props> = ({
+  directories,
+  disabled,
+  loading,
+  pageInfo,
+  onAdd,
+  onNextPage,
+  onPreviousPage,
+  onRowClick,
+}) => {
+  const classes = useStyles();
+  return (
     <Container width="md">
       <PageHeader title={i18n.t("Directories")}>
-        <IconButton
-          disabled={disabled || loading}
-          icon={Plus}
-          onClick={onAdd}
-        />
+        <IconButton disabled={disabled || loading} onClick={onAdd}>
+          <Plus />
+        </IconButton>
       </PageHeader>
       <div className={classes.root}>
         <div>
@@ -59,6 +55,6 @@ export const DirectoryRootPage = decorate<Props>(
         <div />
       </div>
     </Container>
-  ),
-);
+  );
+};
 export default DirectoryRootPage;

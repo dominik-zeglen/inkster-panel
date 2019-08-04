@@ -1,0 +1,7 @@
+language: node_js
+node_js:
+  - "11.15.0"
+install:                                                                 
+  - npm i
+script:
+  - npm run build

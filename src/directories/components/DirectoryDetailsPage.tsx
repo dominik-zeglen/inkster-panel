@@ -1,54 +1,53 @@
 import * as React from "react";
-import withStyles from "react-jss";
 import { Trash } from "react-feather";
+import IconButton from "aurora-ui-kit/dist/components/IconButton";
 
 import Container from "../../components/Container";
 import Form from "../../components/Form";
 import FormSave from "../../components/FormSave";
 import PageHeader from "../../components/PageHeader";
-import IconButton from "../../components/IconButton";
 import { FormViewProps, ListViewProps } from "../../";
 import DirectoryProperties from "./DirectoryProperties";
 import DirectoryPages from "./DirectoryPages";
 import DirectoryStatus from "./DirectoryStatus";
 import { Directory_getDirectory } from "../queries/types/Directory";
 import { maybe } from "../../utils";
+import Spacer from "../../components/Spacer";
+import createUseStyles from "aurora-ui-kit/dist/utils/jss";
+import { ITheme } from "aurora-ui-kit/dist/theme";
 
 interface FormData {
   name: string;
   isPublished: boolean;
 }
-interface Props extends FormViewProps<FormData>, ListViewProps<{}> {
+interface Props extends FormViewProps<FormData>, ListViewProps {
   directory: Directory_getDirectory;
   onDelete: () => void;
 }
 
-const decorate = withStyles(
-  (theme: any) => ({
-    root: {
-      display: "grid" as "grid",
-      gridColumnGap: theme.spacing + "px",
-      gridTemplateColumns: "2fr 1fr",
-    },
-  }),
-  { displayName: "DirectoryDetailsPage" },
-);
-export const DirectoryDetailsPage = decorate<Props>(
-  ({
-    classes,
-    directory,
-    disabled,
-    loading,
-    transaction,
-    pageInfo,
-    onAdd,
-    onBack,
-    onDelete,
-    onSubmit,
-    onNextPage,
-    onPreviousPage,
-    onRowClick,
-  }) => (
+const useStyles = createUseStyles((theme: ITheme) => ({
+  root: {
+    display: "grid" as "grid",
+    gridColumnGap: theme.spacing + "px",
+    gridTemplateColumns: "2fr 1fr",
+  },
+}));
+export const DirectoryDetailsPage: React.FC<Props> = ({
+  directory,
+  disabled,
+  loading,
+  transaction,
+  pageInfo,
+  onAdd,
+  onBack,
+  onDelete,
+  onSubmit,
+  onNextPage,
+  onPreviousPage,
+  onRowClick,
+}) => {
+  const classes = useStyles();
+  return (
     <Form
       initial={{
         isPublished:
@@ -64,11 +63,9 @@ export const DirectoryDetailsPage = decorate<Props>(
             title={directory ? directory.name : undefined}
             onBack={onBack}
           >
-            <IconButton
-              disabled={disabled || loading}
-              icon={Trash}
-              onClick={onDelete}
-            />
+            <IconButton disabled={disabled || loading} onClick={onDelete}>
+              <Trash />
+            </IconButton>
           </PageHeader>
           <div className={classes.root}>
             <div>
@@ -77,6 +74,7 @@ export const DirectoryDetailsPage = decorate<Props>(
                 disabled={disabled || loading}
                 onChange={change}
               />
+              <Spacer />
               <DirectoryPages
                 pages={maybe(() =>
                   directory.pages.edges.map(edge => edge.node),
@@ -106,6 +104,6 @@ export const DirectoryDetailsPage = decorate<Props>(
         </Container>
       )}
     </Form>
-  ),
-);
+  );
+};
 export default DirectoryDetailsPage;

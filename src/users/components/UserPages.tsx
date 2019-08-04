@@ -1,5 +1,7 @@
 import * as React from "react";
 import Card from "aurora-ui-kit/dist/components/Card";
+import CardHeader from "aurora-ui-kit/dist/components/CardHeader";
+import CardTitle from "aurora-ui-kit/dist/components/CardTitle";
 import Table from "aurora-ui-kit/dist/components/Table";
 import TableRow from "aurora-ui-kit/dist/components/TableRow";
 import TableCell from "aurora-ui-kit/dist/components/TableCell";
@@ -13,11 +15,12 @@ import createUseStyles, { css } from "aurora-ui-kit/dist/utils/jss";
 import i18n from "../../i18n";
 import PaginationArrows from "../../components/PaginationArrows";
 import { ViewProps, PaginatedListProps } from "../..";
-import { UserList_users_edges_node } from "../queries/types/UserList";
 import { maybe, renderCollection } from "../../utils";
+import { UserDetails_user_pages_edges_node } from "../queries/types/UserDetails";
+import Date from "../../components/Date";
 
 interface Props extends ViewProps, PaginatedListProps {
-  users: UserList_users_edges_node[];
+  pages: UserDetails_user_pages_edges_node[];
 }
 
 const useStyles = createUseStyles({
@@ -28,10 +31,10 @@ const useStyles = createUseStyles({
     cursor: "pointer",
   },
 });
-export const UserListPage: React.FC<Props> = ({
+export const UserPages: React.FC<Props> = ({
   disabled,
   pageInfo,
-  users,
+  pages,
   onNextPage,
   onPreviousPage,
   onRowClick,
@@ -39,16 +42,20 @@ export const UserListPage: React.FC<Props> = ({
   const classes = useStyles();
   return (
     <Card>
+      <CardHeader>
+        <CardTitle>{i18n.t("Written by  user")}</CardTitle>
+      </CardHeader>
       <Table>
         <TableHead>
-          <TableCell>{i18n.t("E-mail Address")}</TableCell>
+          <TableCell>{i18n.t("Title")}</TableCell>
+          <TableCell>{i18n.t("Created")}</TableCell>
           <TableCell className={classes.colStatus}>
             {i18n.t("Status")}
           </TableCell>
         </TableHead>
         <TableFooter>
           <TableRow>
-            <TableCell colSpan={2}>
+            <TableCell colSpan={3}>
               <PaginationArrows
                 disabled={disabled}
                 pageInfo={pageInfo}
@@ -60,20 +67,30 @@ export const UserListPage: React.FC<Props> = ({
         </TableFooter>
         <TableBody>
           {renderCollection(
-            users,
-            user => (
+            pages,
+            page => (
               <TableRow
                 className={classes.row}
-                hover={!!user}
-                onClick={maybe(() => onRowClick(user.id))}
+                hover={!!page}
+                onClick={maybe(() => onRowClick(page.id))}
               >
                 <TableCell>
-                  {maybe<React.ReactNode>(() => user.email, <Skeleton />)}
+                  {maybe<React.ReactNode>(() => page.name, <Skeleton />)}
+                </TableCell>
+                <TableCell>
+                  {maybe<React.ReactNode>(
+                    () => (
+                      <Date date={page.createdAt} />
+                    ),
+                    <Skeleton />,
+                  )}
                 </TableCell>
                 <TableCell className={classes.colStatus}>
-                  {user && user.isActive !== undefined ? (
-                    <Status color={user.isActive ? "primary" : "disabled"}>
-                      {user.isActive ? i18n.t("Active") : i18n.t("Inactive")}
+                  {page && page.isPublished !== undefined ? (
+                    <Status color={page.isPublished ? "primary" : "disabled"}>
+                      {page.isPublished
+                        ? i18n.t("Published")
+                        : i18n.t("Unpublished")}
                     </Status>
                   ) : (
                     <Skeleton />
@@ -83,7 +100,9 @@ export const UserListPage: React.FC<Props> = ({
             ),
             () => (
               <TableRow>
-                <TableCell colSpan={2}>{i18n.t("No users found")}</TableCell>
+                <TableCell colSpan={3}>
+                  {i18n.t("This user hasn't written anything yet")}
+                </TableCell>
               </TableRow>
             ),
           )}
@@ -92,4 +111,4 @@ export const UserListPage: React.FC<Props> = ({
     </Card>
   );
 };
-export default UserListPage;
+export default UserPages;

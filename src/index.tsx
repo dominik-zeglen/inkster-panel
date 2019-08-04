@@ -7,12 +7,12 @@ import { BrowserRouter, Route, Switch } from "react-router-dom";
 import { HttpLink } from "apollo-link-http";
 import { InMemoryCache, defaultDataIdFromObject } from "apollo-cache-inmemory";
 import { render } from "react-dom";
-import { ThemeProvider } from "react-jss";
+import Baseline from "aurora-ui-kit/dist/components/Baseline";
+import { ThemeProvider as AuroraThemeProvider } from "aurora-ui-kit/dist/utils/jss";
 
 import App from "./App";
 import AppRoot from "./AppRoot";
-import GlobalStylesheet from "./Stylesheet";
-import theme from "./theme";
+import { theme } from "./theme";
 import UploadProvider from "./UploadProvider";
 import LoaderOverlay from "./components/LoaderOverlay";
 import { DateProvider } from "./components/Date";
@@ -78,9 +78,9 @@ render(
             <BrowserRouter
               basename={process.env.NODE_ENV === "production" ? "/panel/" : "/"}
             >
-              <ThemeProvider theme={theme}>
+              <AuroraThemeProvider theme={theme}>
                 <>
-                  <GlobalStylesheet />
+                  <Baseline />
                   <NotificationProvider>
                     <AuthProvider>
                       {({
@@ -115,7 +115,7 @@ render(
                     </AuthProvider>
                   </NotificationProvider>
                 </>
-              </ThemeProvider>
+              </AuroraThemeProvider>
             </BrowserRouter>
           </ApolloProvider>
         )}
@@ -141,8 +141,8 @@ export interface ViewProps {
   loading: boolean;
   title?: string;
 }
-export interface ListViewProps<T> extends ViewProps, PaginatedListProps {
-  onAdd: (data?: T) => void;
+export interface ListViewProps extends ViewProps, PaginatedListProps {
+  onAdd: () => void;
 }
 export interface FormViewProps<T> extends ViewProps {
   transaction: TransactionState;

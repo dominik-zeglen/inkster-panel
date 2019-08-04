@@ -1,7 +1,8 @@
 import * as React from "react";
-import { Alert } from "react-bootstrap";
 import { AlertTriangle, Info } from "react-feather";
-import withStyles from "react-jss";
+import { ITheme } from "aurora-ui-kit/dist/theme";
+import createUseStyles from "aurora-ui-kit/dist/utils/jss";
+import NotificationInnerComponent from "aurora-ui-kit/dist/components/Notification";
 
 export enum NotificationType {
   DEFAULT,
@@ -19,7 +20,7 @@ interface NotificationComponentProps {
   onPointerEnter: () => void;
   onPointerLeave: () => void;
 }
-const decorate = withStyles(theme => ({
+const useStyles = createUseStyles((theme: ITheme) => ({
   iconContainer: {
     alignItems: "center" as "center",
     display: "flex" as "flex",
@@ -36,19 +37,28 @@ const decorate = withStyles(theme => ({
   },
 }));
 
-const NotificationComponent = decorate<NotificationComponentProps>(
-  ({ classes, onDismiss, onPointerEnter, onPointerLeave, text, type }) => (
-    <Alert
-      bsStyle={
+const NotificationComponent: React.FC<NotificationComponentProps> = ({
+  onDismiss,
+  onPointerEnter,
+  onPointerLeave,
+  text,
+  type,
+}) => {
+  const classes = useStyles();
+  return (
+    <NotificationInnerComponent
+      color={
         type === NotificationType.ERROR
-          ? "danger"
+          ? "error"
           : type === NotificationType.WARNING
-            ? "warning"
-            : "info"
+          ? "warning"
+          : "primary"
       }
-      onDismiss={onDismiss}
-      onPointerEnter={onPointerEnter}
-      onPointerLeave={onPointerLeave}
+      componentProps={{
+        onMouseEnter: onPointerEnter,
+        onMouseLeave: onPointerLeave,
+      }}
+      onClick={onDismiss}
     >
       <div className={classes.root}>
         <div className={classes.iconContainer}>
@@ -62,9 +72,9 @@ const NotificationComponent = decorate<NotificationComponentProps>(
         </div>
         <div>{text}</div>
       </div>
-    </Alert>
-  ),
-);
+    </NotificationInnerComponent>
+  );
+};
 
 export interface NotificationProps {
   closeAfter?: number;
