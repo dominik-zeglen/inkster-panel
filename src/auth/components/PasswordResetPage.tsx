@@ -1,10 +1,10 @@
 import * as React from "react";
-import withStyles from "react-jss";
-import { Button } from "react-bootstrap";
+import createUseStyles from "aurora-ui-kit/dist/utils/jss";
+import Button from "aurora-ui-kit/dist/components/Button";
+import Input from "aurora-ui-kit/dist/components/TextInput";
 
 import PageLayout from "./PageLayout";
 import Form from "../../components/Form";
-import Input from "../../components/Input";
 import i18n from "../../i18n";
 
 export interface FormData {
@@ -19,54 +19,78 @@ export interface Props {
 
 const initialForm: FormData = {
   password: "",
-  passwordConfirm: ""
+  passwordConfirm: "",
 };
-const decorate = withStyles(theme => ({
+const useStyles = createUseStyles({
   buttonContainer: {
     display: "flex" as "flex",
-    justifyContent: "flex-end" as "flex-end"
-  }
-}));
-export const PasswordResetPage = decorate<Props>(
-  ({ classes, disabled, onSubmit }) => (
+    justifyContent: "flex-end" as "flex-end",
+  },
+});
+export const PasswordResetPage: React.FC<Props> = ({ disabled, onSubmit }) => {
+  const classes = useStyles();
+
+  return (
     <Form initial={initialForm} onSubmit={onSubmit}>
       {({ change, data, hasChanged }) => (
         <PageLayout
           header={i18n.t("Reset password", {
-            context: "header"
+            context: "header",
           })}
         >
           <Input
             label={i18n.t("New password", {
-              context: "label"
+              context: "label",
             })}
-            name="password"
-            type="password"
+            InputProps={{
+              componentProps: {
+                type: "password",
+              },
+            }}
             value={data.password}
-            onChange={change}
+            onChange={value =>
+              change({
+                target: {
+                  name: "password",
+                  value,
+                },
+              } as any)
+            }
           />
           <Input
             error={data.password !== data.passwordConfirm}
             label={i18n.t("Confirm password", {
-              context: "label"
+              context: "label",
             })}
-            helperText={
+            helpText={
               data.password !== data.passwordConfirm
                 ? i18n.t("Passwords do not match", {
-                    context: "caption"
+                    context: "caption",
                   })
                 : undefined
             }
-            name="passwordConfirm"
-            type="password"
+            InputProps={{
+              componentProps: {
+                type: "password",
+              },
+            }}
             value={data.passwordConfirm}
-            onChange={change}
+            onChange={value =>
+              change({
+                target: {
+                  name: "passwordConfirm",
+                  value,
+                },
+              } as any)
+            }
           />
           <div className={classes.buttonContainer}>
             <Button
-              bsStyle="primary"
+              color="primary"
               disabled={
-                disabled || !hasChanged || data.password !== data.passwordConfirm
+                disabled ||
+                !hasChanged ||
+                data.password !== data.passwordConfirm
               }
               type="submit"
             >
@@ -76,6 +100,6 @@ export const PasswordResetPage = decorate<Props>(
         </PageLayout>
       )}
     </Form>
-  )
-);
+  );
+};
 export default PasswordResetPage;
