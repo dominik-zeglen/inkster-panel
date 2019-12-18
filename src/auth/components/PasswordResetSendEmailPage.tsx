@@ -33,7 +33,7 @@ export const PasswordResetSendEmailPage: React.FC<Props> = ({
 
   return (
     <Form initial={initialForm} onSubmit={onSubmit}>
-      {({ change, data, hasChanged }) => (
+      {({ change, data, hasChanged, submit }) => (
         <PageLayout
           header={i18n.t("Reset password", {
             context: "header",
@@ -67,6 +67,7 @@ export const PasswordResetSendEmailPage: React.FC<Props> = ({
               color="primary"
               disabled={disabled || !hasChanged}
               type="submit"
+              onClick={submit}
             >
               {i18n.t("Submit", { context: "button" })}
             </Button>

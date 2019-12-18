@@ -2,22 +2,12 @@ import gql from "graphql-tag";
 
 import { TypedMutation } from "../../api";
 import { PageUpdate, PageUpdateVariables } from "./types/PageUpdate";
+import fPageField from "src/api/fragments/fPageField";
 
 const mPageUpdate = gql`
-  mutation PageUpdate(
-    $id: ID!
-    $input: PageUpdateInput
-    $add: [PageFieldCreateInput!]
-    $update: [PageFieldUpdate!]
-    $remove: [String!]
-  ) {
-    updatePage(
-      id: $id
-      input: $input
-      addFields: $add
-      updateFields: $update
-      removeFields: $remove
-    ) {
+  ${fPageField}
+  mutation PageUpdate($id: ID!, $input: PageUpdateInput!) {
+    updatePage(id: $id, input: $input) {
       errors {
         code
         field
@@ -29,10 +19,7 @@ const mPageUpdate = gql`
         slug
         isPublished
         fields {
-          id
-          name
-          type
-          value
+          ...PageFieldFragment
         }
       }
     }

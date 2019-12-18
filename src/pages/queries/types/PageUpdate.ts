@@ -1,7 +1,7 @@
 /* tslint:disable */
 // This file was automatically generated and should not be edited.
 
-import { PageUpdateInput, PageFieldCreateInput, PageFieldUpdate } from "./../../../types/globalTypes";
+import { PageUpdateInput } from "./../../../types/globalTypes";
 
 // ====================================================
 // GraphQL mutation operation: PageUpdate
@@ -15,8 +15,7 @@ export interface PageUpdate_updatePage_errors {
 
 export interface PageUpdate_updatePage_page_fields {
   __typename: "PageField";
-  id: string;
-  name: string;
+  slug: string;
   type: string;
   value: string | null;
 }
@@ -43,8 +42,5 @@ export interface PageUpdate {
 
 export interface PageUpdateVariables {
   id: string;
-  input?: PageUpdateInput | null;
-  add?: PageFieldCreateInput[] | null;
-  update?: PageFieldUpdate[] | null;
-  remove?: string[] | null;
+  input: PageUpdateInput;
 }

@@ -1,7 +1,7 @@
 /* tslint:disable */
 // This file was automatically generated and should not be edited.
 
-import { PageFieldCreateInput } from "./../../../types/globalTypes";
+import { PageFieldInput } from "./../../../types/globalTypes";
 
 // ====================================================
 // GraphQL mutation operation: PageCreate
@@ -15,7 +15,7 @@ export interface PageCreate_createPage_errors {
 
 export interface PageCreate_createPage_page_fields {
   __typename: "PageField";
-  name: string;
+  slug: string;
   type: string;
   value: string | null;
 }
@@ -44,5 +44,5 @@ export interface PageCreate {
 export interface PageCreateVariables {
   parentId: string;
   name: string;
-  fields?: PageFieldCreateInput[] | null;
+  fields?: PageFieldInput[] | null;
 }

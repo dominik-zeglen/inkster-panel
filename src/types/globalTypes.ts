@@ -5,27 +5,18 @@
 // START Enums and Input Objects
 //==============================================================
 
-export interface PageFieldCreateInput {
-  name: string;
+export interface PageFieldInput {
+  slug: string;
   type: string;
   value: string;
 }
 
-export interface PageFieldUpdate {
-  id: string;
-  input: PageFieldUpdateInput;
-}
-
-export interface PageFieldUpdateInput {
-  name?: string | null;
-  value?: string | null;
-}
-
 export interface PageUpdateInput {
-  name?: string | null;
-  slug?: string | null;
-  parentId?: string | null;
+  fields?: PageFieldInput[] | null;
   isPublished?: boolean | null;
+  name?: string | null;
+  parentId?: string | null;
+  slug?: string | null;
 }
 
 export interface PaginationInput {
@@ -37,7 +28,6 @@ export interface PaginationInput {
 
 export interface UserCreateInput {
   email: string;
-  password?: string | null;
 }
 
 export interface UserUpdateInput {

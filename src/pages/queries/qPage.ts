@@ -2,8 +2,10 @@ import gql from "graphql-tag";
 
 import { TypedQuery } from "../../api";
 import { Page, PageVariables } from "./types/Page";
+import fPageField from "src/api/fragments/fPageField";
 
 const qPage = gql`
+  ${fPageField}
   query Page($id: ID!) {
     page(id: $id) {
       id
@@ -13,10 +15,7 @@ const qPage = gql`
       slug
       isPublished
       fields {
-        id
-        name
-        type
-        value
+        ...PageFieldFragment
       }
       parent {
         id

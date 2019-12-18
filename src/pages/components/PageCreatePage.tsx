@@ -16,17 +16,12 @@ import PageFieldProperties from "./PageFieldProperties";
 import { fieldTypes } from "../misc";
 import { ITheme } from "aurora-ui-kit/dist/theme";
 import createUseStyles from "aurora-ui-kit/dist/utils/jss";
+import { PageFieldFragment } from "src/api/fragments/types/PageFieldFragment";
 
-interface PageField {
-  id: string;
-  name: string;
-  type: string;
-  value: string;
-}
 export interface FormData {
   name: string;
   slug: string;
-  addFields: PageField[];
+  addFields: PageFieldFragment[];
   removeFields: string[];
 }
 interface Props extends ViewProps, FormViewProps<FormData> {
@@ -56,7 +51,7 @@ export const PageCreatePage: React.FC<Props> = ({
   const initialForm = {
     name: "",
     slug: "",
-    addFields: [] as PageField[],
+    addFields: [] as PageFieldFragment[],
     removeFields: [] as string[],
   };
   return (
@@ -78,30 +73,32 @@ export const PageCreatePage: React.FC<Props> = ({
             },
           } as any);
         };
-        const handleFieldRemove = (name: string, id: string) => () => {
+        const handleFieldRemove = (name: string, slug: string) => () => {
           change({
             target: {
               name,
-              value: data[name].filter((f: PageField) => f.id !== id),
+              value: data[name].filter(
+                (f: PageFieldFragment) => f.slug !== slug,
+              ),
             },
           } as any);
           if (name === "fields") {
             change({
               target: {
                 name: "removeFields",
-                value: [id, ...data.removeFields],
+                value: [slug, ...data.removeFields],
               },
             } as any);
           }
         };
-        const handleChange = (name: string, id: string) => (
+        const handleChange = (name: string, slug: string) => (
           event: React.ChangeEvent<any>,
         ) =>
           change({
             target: {
               name,
-              value: data[name].map((f: PageField) =>
-                f.id === id
+              value: data[name].map((f: PageFieldFragment) =>
+                f.slug === slug
                   ? { ...f, [event.target.name]: event.target.value }
                   : f,
               ),
@@ -130,10 +127,10 @@ export const PageCreatePage: React.FC<Props> = ({
                       {data.addFields.map((field, index) => (
                         <PageFieldProperties
                           data={field}
-                          key={field.id + index}
+                          key={field.slug + index}
                           name="addFields"
-                          onChange={handleChange("addFields", field.id)}
-                          onDelete={handleFieldRemove("addFields", field.id)}
+                          onChange={handleChange("addFields", field.slug)}
+                          onDelete={handleFieldRemove("addFields", field.slug)}
                           onUpload={onUpload}
                         />
                       ))}

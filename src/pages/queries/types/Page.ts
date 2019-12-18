@@ -7,8 +7,7 @@
 
 export interface Page_page_fields {
   __typename: "PageField";
-  id: string;
-  name: string;
+  slug: string;
   type: string;
   value: string | null;
 }

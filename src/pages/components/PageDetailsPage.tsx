@@ -19,19 +19,14 @@ import Spacer from "../../components/Spacer";
 import { fieldTypes } from "../misc";
 import createUseStyles from "aurora-ui-kit/dist/utils/jss";
 import { ITheme } from "aurora-ui-kit/dist/theme";
+import { PageFieldFragment } from "src/api/fragments/types/PageFieldFragment";
 
-interface PageField {
-  id: string;
-  name: string;
-  type: string;
-  value: string;
-}
 export interface FormData {
   name: string;
   slug: string;
   isPublished: boolean;
-  fields: PageField[];
-  addFields: PageField[];
+  fields: PageFieldFragment[];
+  addFields: PageFieldFragment[];
   removeFields: string[];
 }
 interface Props extends ViewProps, FormViewProps<FormData> {
@@ -65,8 +60,8 @@ export const PageDetailsPage: React.FC<Props> = ({
     name: page && page.name ? page.name : "",
     slug: page && page.slug ? page.slug : "",
     isPublished: page ? page.isPublished : false,
-    fields: (page && page.fields ? page.fields : []) as PageField[],
-    addFields: [] as PageField[],
+    fields: (page && page.fields ? page.fields : []) as PageFieldFragment[],
+    addFields: [] as PageFieldFragment[],
     removeFields: [] as string[],
   };
   return (
@@ -96,7 +91,7 @@ export const PageDetailsPage: React.FC<Props> = ({
           change({
             target: {
               name,
-              value: data[name].filter((f: PageField) => f.id !== id),
+              value: data[name].filter((f: PageFieldFragment) => f.slug !== id),
             },
           } as any);
           if (name === "fields") {
@@ -114,8 +109,8 @@ export const PageDetailsPage: React.FC<Props> = ({
           change({
             target: {
               name,
-              value: data[name].map((f: PageField) =>
-                f.id === id
+              value: data[name].map((f: PageFieldFragment) =>
+                f.slug === id
                   ? { ...f, [event.target.name]: event.target.value }
                   : f,
               ),
@@ -154,10 +149,10 @@ export const PageDetailsPage: React.FC<Props> = ({
                           <Spacer />
                           <PageFieldProperties
                             data={field}
-                            key={field.id + index}
+                            key={field.slug + index}
                             name="fields"
-                            onChange={handleChange("fields", field.id)}
-                            onDelete={handleFieldRemove("fields", field.id)}
+                            onChange={handleChange("fields", field.slug)}
+                            onDelete={handleFieldRemove("fields", field.slug)}
                             onUpload={onUpload}
                           />
                         </>
@@ -167,10 +162,13 @@ export const PageDetailsPage: React.FC<Props> = ({
                           <Spacer />
                           <PageFieldProperties
                             data={field}
-                            key={field.id + index}
+                            key={field.slug + index}
                             name="addFields"
-                            onChange={handleChange("addFields", field.id)}
-                            onDelete={handleFieldRemove("addFields", field.id)}
+                            onChange={handleChange("addFields", field.slug)}
+                            onDelete={handleFieldRemove(
+                              "addFields",
+                              field.slug,
+                            )}
                             onUpload={onUpload}
                           />
                         </>

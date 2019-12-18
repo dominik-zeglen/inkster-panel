@@ -1,0 +1,238 @@
+input DirectoryCreateInput {
+  name: String!
+  parentId: ID
+  isPublished: Boolean
+}
+input DirectorySort {
+    field: DirectorySortableField!
+    order: SortOrder!
+}
+input DirectoryUpdateInput {
+  name: String
+  parentId: ID
+  isPublished: Boolean
+}
+input PageCreateInput {
+  fields: [PageFieldInput!]
+  isPublished: Boolean
+  name: String!
+  parentId: ID!
+  slug: String
+}
+input PageFieldInput {
+  slug: String!
+  type: String!
+  value: String!
+}
+input PageSort {
+    field: PageSortableField!
+    order: SortOrder!
+}
+input PageUpdateInput {
+  fields: [PageFieldInput!]
+  isPublished: Boolean
+  name: String
+  parentId: ID
+  slug: String
+}
+input PaginationInput {
+    after: String
+    before: String
+    first: Int
+    last: Int
+}
+input UserCreateInput {
+  email: String!
+}
+input UserSort {
+    field: UserSortableField!
+    order: SortOrder!
+}
+input UserUpdateInput {
+  isActive: Boolean
+  email: String
+}
+input WebsiteUpdateInput {
+    name: String
+    description: String
+    domain: String
+}
+type Mutation {
+  createDirectory(input: DirectoryCreateInput!): DirectoryOperationResult
+  updateDirectory(
+    id: ID!
+    input: DirectoryUpdateInput!
+  ): DirectoryOperationResult
+  removeDirectory(id: ID!): Boolean!
+
+  createPage(input: PageCreateInput!): PageOperationResult
+  updatePage(id: ID!, input: PageUpdateInput!): PageOperationResult
+  removePage(id: ID!): PageRemoveResult
+
+  changeUserPassword(id: ID!, password: String!): Boolean!
+  createUser(input: UserCreateInput!): UserOperationResult!
+  removeUser(id: ID!): UserRemoveResult!
+  updateUser(id: ID!, input: UserUpdateInput!): UserOperationResult!
+  resetUserPassword(token: String!, password: String!): Boolean!
+  sendUserPasswordResetToken(email: String!): Boolean!
+
+  login(email: String!, password: String!): LoginResult!
+  verifyToken(token: String!): VerifyTokenResult
+
+  updateWebsite(input: WebsiteUpdateInput!): WebsiteOperationResult!
+}
+type Query {
+  getDirectory(id: ID!): Directory
+  getDirectories(sort: DirectorySort, paginate: PaginationInput!): DirectoryConnection
+  getRootDirectories(sort: DirectorySort, paginate: PaginationInput!): DirectoryConnection
+
+  page(id: ID!): Page
+  pages(sort: PageSort, paginate: PaginationInput!): PageConnection
+
+  user(id: ID!): User
+  users(sort: UserSort, paginate: PaginationInput!): UserConnection
+  viewer: User
+
+  website: Website!
+}
+schema {
+  query: Query
+  mutation: Mutation
+}
+type Directory {
+  id: ID!
+  createdAt: String!
+  updatedAt: String!
+  name: String!
+  parent: Directory
+  isPublished: Boolean!
+  children(sort: DirectorySort, paginate: PaginationInput!): DirectoryConnection
+  pages(sort: PageSort, paginate: PaginationInput!): PageConnection
+}
+type DirectoryConnection {
+    edges: [DirectoryConnectionEdge!]!
+    pageInfo: PageInfo!
+}
+type DirectoryConnectionEdge {
+    cursor: String!
+    node: Directory!
+}
+type DirectoryOperationResult {
+  errors: [InputError!]!
+  directory: Directory
+}
+enum DirectorySortableField {
+    CREATED_AT
+    IS_PUBLISHED
+    NAME
+    UPDATED_AT
+}
+type InputError {
+  code: Int!
+  field: String!
+  message: String!
+}
+type LoginResult {
+  token: String
+  user: User
+}
+type Page {
+  id: ID!
+  author: User!
+  createdAt: String!
+  updatedAt: String!
+  name: String!
+  slug: String!
+  isPublished: Boolean!
+  fields: [PageField]
+  parent: Directory!
+}
+type PageConnection {
+    edges: [PageConnectionEdge!]!
+    pageInfo: PageInfo!
+}
+type PageConnectionEdge {
+    cursor: String!
+    node: Page!
+}
+type PageField {
+  slug: String!
+  type: String!
+  value: String
+}
+type PageFieldOperationResult {
+  userErrors: [UserError]
+  page: Page
+}
+type PageInfo {
+    endCursor: String
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    startCursor: String
+}
+type PageOperationResult {
+  errors: [InputError!]!
+  page: Page
+}
+type PageRemoveResult {
+  removedObjectId: ID!
+}
+enum PageSortableField {
+    AUTHOR
+    CREATED_AT
+    IS_PUBLISHED
+    NAME
+    SLUG
+    UPDATED_AT
+}
+enum SortOrder {
+    ASC
+    DESC
+}
+type User {
+  id: ID!
+  createdAt: String!
+  updatedAt: String!
+  email: String!
+  isActive: Boolean!
+  pages(sort: PageSort, paginate: PaginationInput!): PageConnection
+}
+type UserConnection {
+    edges: [UserConnectionEdge!]!
+    pageInfo: PageInfo!
+}
+type UserConnectionEdge {
+    cursor: String!
+    node: User!
+}
+type UserError {
+  field: String!
+  message: String!
+}
+type UserOperationResult {
+  errors: [InputError!]!
+  user: User
+}
+type UserRemoveResult {
+  removedObjectId: ID
+}
+enum UserSortableField {
+    ACTIVE
+    CREATED_AT
+    EMAIL
+    UPDATED_AT
+}
+type VerifyTokenResult {
+  result: Boolean!
+  user: User
+}
+type Website {
+    name: String!
+    description: String!
+    domain: String!
+}
+type WebsiteOperationResult {
+    errors: [InputError!]!
+    website: Website
+}
+

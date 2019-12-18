@@ -173,7 +173,7 @@
   "apollo": {
     "schemas": {
       "default": {
-        "schema": "api/schema.graphql",
+        "schema": "src/api/schema.graphql",
         "endpoint": "http://localhost:8000/graphql/"
       }
     },

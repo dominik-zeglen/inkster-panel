@@ -32,7 +32,7 @@ export const PasswordResetPage: React.FC<Props> = ({ disabled, onSubmit }) => {
 
   return (
     <Form initial={initialForm} onSubmit={onSubmit}>
-      {({ change, data, hasChanged }) => (
+      {({ change, data, hasChanged, submit }) => (
         <PageLayout
           header={i18n.t("Reset password", {
             context: "header",
@@ -93,6 +93,7 @@ export const PasswordResetPage: React.FC<Props> = ({ disabled, onSubmit }) => {
                 data.password !== data.passwordConfirm
               }
               type="submit"
+              onClick={submit}
             >
               {i18n.t("Submit", { context: "button" })}
             </Button>

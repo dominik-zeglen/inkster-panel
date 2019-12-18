@@ -5,7 +5,7 @@ import { CreateUser, CreateUserVariables } from "./types/CreateUser";
 
 const mCreateUser = gql`
   mutation CreateUser($input: UserCreateInput!) {
-    createUser(input: $input, sendInvitation: true) {
+    createUser(input: $input) {
       errors {
         field
         message

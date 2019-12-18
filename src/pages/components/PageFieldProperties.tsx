@@ -15,8 +15,7 @@ import Spacer from "../../components/Spacer";
 
 interface Props {
   data: {
-    id: string;
-    name: string;
+    slug: string;
     type: string;
     value: string;
   };
@@ -47,12 +46,12 @@ export const PageFieldProperties: React.StatelessComponent<Props> = ({
       </CardHeader>
       <CardContent>
         <Input
-          label={i18n.t("Name")}
-          value={data.name}
+          label={i18n.t("Slug")}
+          value={data.slug}
           onChange={value =>
             onChange({
               target: {
-                name: "name",
+                slug: "slug",
                 value,
               },
             } as any)
@@ -77,7 +76,7 @@ export const PageFieldProperties: React.StatelessComponent<Props> = ({
                 name="value"
                 type="file"
                 ref={ref => {
-                  this.refs[data.name] = ref;
+                  this.refs[data.slug] = ref;
                 }}
                 accept="image/*"
                 style={{ display: "none" as "none" }}
@@ -87,7 +86,7 @@ export const PageFieldProperties: React.StatelessComponent<Props> = ({
             <div>
               {data.value ? (
                 <img
-                  src={"/static/" + data.value}
+                  src={data.value}
                   style={{
                     borderRadius: 6,
                     height: "auto",
@@ -109,7 +108,7 @@ export const PageFieldProperties: React.StatelessComponent<Props> = ({
               )}
               <Button
                 onClick={
-                  this.refs ? () => this.refs[data.name].click() : undefined
+                  this.refs ? () => this.refs[data.slug].click() : undefined
                 }
                 componentProps={{
                   style: { width: "100%" },
@@ -128,7 +127,7 @@ export const PageFieldProperties: React.StatelessComponent<Props> = ({
                 name="value"
                 type="file"
                 ref={ref => {
-                  this.refs[data.name] = ref;
+                  this.refs[data.slug] = ref;
                 }}
                 style={{ display: "none" as "none" }}
                 onChange={onUpload(onChange)}
@@ -136,7 +135,7 @@ export const PageFieldProperties: React.StatelessComponent<Props> = ({
             </InputLabel>
             <div>
               {data.value ? (
-                <a href={"/static/" + data.value}>
+                <a href={data.value}>
                   {i18n.t("Download {{ filename }}", {
                     filename: data.value,
                   })}
@@ -154,7 +153,7 @@ export const PageFieldProperties: React.StatelessComponent<Props> = ({
               )}
               <Button
                 onClick={
-                  this.refs ? () => this.refs[data.name].click() : undefined
+                  this.refs ? () => this.refs[data.slug].click() : undefined
                 }
                 componentProps={{
                   style: { width: "100%" },
